@@ -33,9 +33,17 @@ if (!isProduction) {
 if(isProduction){
   mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect('mongodb://localhost/conduit');
+  mongoose.connect('mongodb://localhost/DirectSpacing');
   mongoose.set('debug', true);
 }
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+    console.log('we are connected to DirectSpacing database');
+});
+
+
 
 require('./models/User');
 require('./models/Article');
