@@ -43,12 +43,11 @@ db.once('open', function() {
     console.log('we are connected to DirectSpacing database');
 });
 
-
-
 require('./models/User');
 require('./models/Article');
 require('./models/Comment');
 require('./config/passport');
+require('./models/Appointment');
 
 app.use(require('./routes'));
 
