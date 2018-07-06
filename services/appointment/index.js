@@ -5,24 +5,25 @@ var Appointment = mongoose.model('Appointment');
 
 module.exports = {
 
-    create : function(app, returnUser){
-
-            if(!app.location){
-                app.location = returnUser.address;
-            }
-            if(!app.phone) {
-                app.phone = returnUser.phone;
-            }
-            return new Appointment({
-                location: app.location,
-                status: app.status,
-                time: app.time,
-                phone: app.phone,
-                comments: app.comments,
-                userId: app.userId? app.userId : returnUser.id
-            }).save().then(function(result){
-                return result;
-            });
+    create: async (app) => {
+        let user = await User.findOne({_id: app.userId});
+        if (!app.location) {
+            app.location = user.address;
+        }
+        if (!app.phone) {
+            app.phone = user.phone;
+        }
+        return new Appointment({
+            location: app.location,
+            status: app.status,
+            time: app.time,
+            phone: app.phone,
+            comments: app.comments,
+            userId: app.userId
+        }).save();
+    },
+    get: async (query) => {
+        return await Appointment.find(query);
     }
 
 };

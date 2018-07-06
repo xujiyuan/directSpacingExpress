@@ -1,91 +1,104 @@
-var mongoose = require('mongoose');
-var router = require('express').Router();
-var passport = require('passport');
-var User = mongoose.model('User');
-var auth = require('../auth');
+let mongoose = require('mongoose');
+let router = require('express').Router();
+let passport = require('passport');
+let User = mongoose.model('User');
+let auth = require('../auth');
+let UserService = require('../../services/user');
 
-router.get('/user', auth.optional, function (req, res, next) {
-    User.find(req.query).then(function (user) {
-        res.json(user);
-    }).catch(next);
-});
+router.get('/user', auth.required, async (req, res, next) => {
 
-router.put('/user', auth.optional, function (req, res, next) {
-
-    var user = new User();
-
-    user.username = req.body.username;
-    user.id = req.body.id;
-    user.email = req.body.email;
-    user.name = req.body.name;
-    user.address = req.body.address;
-    user.comments = req.body.comments;
-    user.userType = req.body.userType;
-    user.projectType = req.body.projectType;
-
-    user.save().then(function () {
-        return res.status(201).json({user: user.toAuthJSON()});
-    }).catch(next);
-
-    // User.findById(req.body.id).then(function(user){
-    //   if(!user){ return res.sendStatus(401); }
-    //
-    //   // only update fields that were actually passed...
-    //   if(typeof req.body.user.username !== 'undefined'){
-    //     user.username = req.body.user.username;
-    //   }
-    //   if(typeof req.body.user.email !== 'undefined'){
-    //     user.email = req.body.user.email;
-    //   }
-    //   if(typeof req.body.user.bio !== 'undefined'){
-    //     user.bio = req.body.user.bio;
-    //   }
-    //   if(typeof req.body.user.image !== 'undefined'){
-    //     user.image = req.body.user.image;
-    //   }
-    //   if(typeof req.body.user.password !== 'undefined'){
-    //     user.setPassword(req.body.user.password);
-    //   }
-    //
-    //   return user.save().then(function(){
-    //     return res.json({user: user.toAuthJSON()});
-    //   });
-    // }).catch(next);
-});
-
-router.post('/users/login', function (req, res, next) {
-    if (!req.body.user.email) {
-        return res.status(422).json({errors: {email: "can't be blank"}});
-    }
-
-    if (!req.body.user.password) {
-        return res.status(422).json({errors: {password: "can't be blank"}});
-    }
-
-    passport.authenticate('local', {session: false}, function (err, user, info) {
-        if (err) {
-            return next(err);
-        }
-
-        if (user) {
-            user.token = user.generateJWT();
-            return res.json({user: user.toAuthJSON()});
+    try {
+        let users = await UserService.get(req.query);
+        if (users.length === 0) {
+            res.status(404).json('not found');
         } else {
-            return res.status(422).json(info);
+            res.status(200).json(users);
         }
-    })(req, res, next);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
 });
 
-router.post('/users', function (req, res, next) {
-    var user = new User();
+router.put('/user', auth.optional, async (req, res) => {
+    try {
+        let user = await UserService.create(req.body);
+        if (user) {
+            res.status(201).json(user);
+        } else {
+            res.status(400).json(user);
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
+});
 
-    user.username = req.body.user.username;
-    user.email = req.body.user.email;
-    user.setPassword(req.body.user.password);
+router.put('/user/register', auth.optional, async (req, res) => {
+    try {
+        let result = await UserService.register(req.body);
+        res.status(201).json(result);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
+});
 
-    user.save().then(function () {
-        return res.json({user: user.toAuthJSON()});
-    }).catch(next);
+router.put('/user/login', auth.optional, async (req, res) => {
+    try {
+        let result = await UserService.validate(req.body);
+        res.status(200).json({authToken: result});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
+});
+
+// router.post('/users/login', function (req, res, next) {
+//     if (!req.body.user.email) {
+//         return res.status(422).json({errors: {email: "can't be blank"}});
+//     }
+//
+//     if (!req.body.user.password) {
+//         return res.status(422).json({errors: {password: "can't be blank"}});
+//     }
+//
+//     passport.authenticate('local', {session: false}, function (err, user, info) {
+//         if (err) {
+//             return next(err);
+//         }
+//
+//         if (user) {
+//             user.token = user.generateJWT();
+//             return res.json({user: user.toAuthJSON()});
+//         } else {
+//             return res.status(422).json(info);
+//         }
+//     })(req, res, next);
+// });
+
+router.post('/user', async (req, res) => {
+    try {
+        if (req.body._id) {
+            let user = await UserService.update(req.body);
+            res.status(200).json(user);
+        } else {
+            res.status(400).json('can not update user without a given id');
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
+});
+
+router.delete('/user', async (req, res) => {
+    try {
+        let result = await UserService.delete(req.query);
+        res.status(200).json(result);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
 });
 
 module.exports = router;

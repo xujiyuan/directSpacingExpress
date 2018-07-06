@@ -1,23 +1,27 @@
-var mongoose = require('mongoose');
-var router = require('express').Router();
-var User = mongoose.model('User');
-var Appointment = mongoose.model('Appointment');
-var AppointmentService = require('../../services/appointment');
-var auth = require('../auth');
+let mongoose = require('mongoose');
+let router = require('express').Router();
+let User = mongoose.model('User');
+let Appointment = mongoose.model('Appointment');
+let AppointmentService = require('../../services/appointment');
+let auth = require('../auth');
 
-router.put('/', auth.optional, function (req, res, next) {
+router.put('/', auth.optional, async function (req, res) {
 
     console.log('start creating new appoint for user' + req.body.userId);
 
-    if(req.body.userId) {
-        User.find({id:req.body.userId}).then(function(returnUser){
-        }).catch(function(error){
-            console.log(error);
-        });
+    if (req.body.userId) {
+        // User.find({id: req.body.userId}).then(function (returnUser) {
+        // }).catch(function (error) {
+        //     console.log(error);
+        // });
 
-        var result = AppointmentService.create(req.body, req.body.userId);
-
-        res.status(201).json(result);
+        try {
+            let result = await AppointmentService.create(req.body);
+            res.status(201).json(result);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err.message);
+        }
     } else {
         res.status(400).json({
             errors: {message: 'userId is required field'}
@@ -25,10 +29,27 @@ router.put('/', auth.optional, function (req, res, next) {
     }
 });
 
-router.get('/', auth.optional, function(req, res, next){
-    Appointment.find(req.query).then(function (appt) {
-        res.json(appt);
-    }).catch(next);
+router.get('/', auth.optional, async function (req, res) {
+    try {
+        let result = await AppointmentService.get(req.query);
+        if (result.length === 1) {
+            let user = await User.find({_id: result[0].userId});
+            res.status(200).json({
+                appointment: result[0],
+                user: user[0]
+            })
+        }
+        else if (result.length === 0) {
+            res.status(404).json('not found');
+        }
+        else {
+            res.status(200).json(result);
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
+
 });
 
 module.exports = router;
