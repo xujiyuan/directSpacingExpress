@@ -10,11 +10,6 @@ router.put('/', auth.optional, async function (req, res) {
     console.log('start creating new appoint for user' + req.body.userId);
 
     if (req.body.userId) {
-        // User.find({id: req.body.userId}).then(function (returnUser) {
-        // }).catch(function (error) {
-        //     console.log(error);
-        // });
-
         try {
             let result = await AppointmentService.create(req.body);
             res.status(201).json(result);
@@ -25,6 +20,22 @@ router.put('/', auth.optional, async function (req, res) {
     } else {
         res.status(400).json({
             errors: {message: 'userId is required field'}
+        });
+    }
+});
+
+router.post('/', auth.required, async (req, res) => {
+    if (req.body.id || req.body._id) {
+        try {
+            let result = await AppointmentService.update(req.body);
+            res.status(200).json(result);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err.message);
+        }
+    } else {
+        res.status(400).json({
+            errors: {message: 'id or _id is required field'}
         });
     }
 });

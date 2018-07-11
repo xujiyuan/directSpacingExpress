@@ -24,6 +24,8 @@ module.exports = {
     },
     get: async (query) => {
         return await Appointment.find(query);
+    },
+    update: async (app) => {
+        return Appointment.findOneAndUpdate({_id: app._id ? app._id : app.id}, app, {returnNewDocument: true});
     }
-
 };
