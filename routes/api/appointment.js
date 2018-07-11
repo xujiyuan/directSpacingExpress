@@ -28,6 +28,7 @@ router.post('/', auth.required, async (req, res) => {
     if (req.body.id || req.body._id) {
         try {
             let result = await AppointmentService.update(req.body);
+            result = await AppointmentService.get({_id: result._id});
             res.status(200).json(result);
         } catch (err) {
             console.log(err);
