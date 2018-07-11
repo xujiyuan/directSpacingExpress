@@ -27,5 +27,8 @@ module.exports = {
     },
     update: async (app) => {
         return Appointment.findOneAndUpdate({_id: app._id ? app._id : app.id}, app, {returnNewDocument: true});
+    },
+    delete: async (app) => {
+        return Appointment.deleteOne({_id: app._id ? app._id : app.id});
     }
 };

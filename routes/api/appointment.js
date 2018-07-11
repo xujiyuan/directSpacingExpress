@@ -24,6 +24,22 @@ router.put('/', auth.optional, async function (req, res) {
     }
 });
 
+router.delete('/', auth.required, async (req, res) =>{
+    if (req.body.id || req.body._id) {
+        try {
+            let result = await AppointmentService.delete(req.body);
+            res.status(200).json(result);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err.message);
+        }
+    } else {
+        res.status(400).json({
+            errors: {message: 'id or _id is required field'}
+        });
+    }
+});
+
 router.post('/', auth.required, async (req, res) => {
     if (req.body.id || req.body._id) {
         try {

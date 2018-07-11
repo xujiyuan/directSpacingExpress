@@ -7,7 +7,8 @@ let secret = require('../config').secret;
 let UserSchema = new mongoose.Schema({
     username: {type: String, lowercase: true, unique: true, match: [/^[a-zA-Z0-9]+$/, 'is invalid'], index: true},
     email: {type: String, lowercase: true, unique: true, match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
-    name: String,
+    firstName: String,
+    lastName: String,
     address: String,
     phone: Number,
     comments: String,
@@ -45,7 +46,7 @@ UserSchema.methods.generateJWT = function () {
 
 UserSchema.methods.toAuthJSON = function () {
     return {
-        username: this.username,
+        username: this.firstName + this.lastName,
         email: this.email,
         token: this.generateJWT(),
         bio: this.bio,
@@ -55,7 +56,7 @@ UserSchema.methods.toAuthJSON = function () {
 
 UserSchema.methods.toProfileJSONFor = function (user) {
     return {
-        username: this.username,
+        username: this.firstName + this.lastName,
         bio: this.bio,
         image: this.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'
     };
