@@ -5,14 +5,15 @@ let jwt = require('jsonwebtoken');
 let secret = require('../config').secret;
 
 let UserSchema = new mongoose.Schema({
-    username: {type: String, lowercase: true, unique: true, match: [/^[a-zA-Z0-9]+$/, 'is invalid'], index: true},
+    username: {type: String, unique: true, index: true},
     email: {type: String, lowercase: true, unique: true, match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
     firstName: String,
     lastName: String,
-    address: String,
+    address1: String,
+    address2: String,
     phone: Number,
     comments: String,
-    userType: String,
+    type: String,
     status: String,
     hash: String,
     salt: String,

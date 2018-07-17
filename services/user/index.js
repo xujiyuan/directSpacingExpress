@@ -15,9 +15,14 @@ module.exports = {
             return new User({
                 username: payload.username,
                 email: payload.email,
-                name: payload.name,
-                address: payload.address,
+                firstName: payload.firstName,
+                lastName: payload.lastName,
+                address1: payload.address1,
+                address2: payload.address2,
                 comments: payload.comments,
+                zip: payload.zip,
+                state: payload.state,
+                phone: payload.phone,
                 userType: payload.userType,
                 status: payload.status
             }).save();
@@ -25,12 +30,12 @@ module.exports = {
     },
     get: async (query) => {
         let users = await User.find(query);
-        if(users.length === 1){
+        if (users.length === 1) {
             let appointments = await Appointment.find({userId: users[0]._id});
-            return new Promise((resolve)=>{
+            return new Promise((resolve) => {
                 resolve({
                     user: users[0],
-                    appointments:appointments
+                    appointments: appointments
                 })
             })
         } else {
@@ -43,15 +48,15 @@ module.exports = {
     delete: async (query) => {
         return User.deleteOne(query);
     },
-    register: async (user)=>{
-        let userModel = await User.findOne({_id:user._id});
+    register: async (user) => {
+        let userModel = await User.findOne({_id: user._id});
         userModel.setPassword(user.password);
         return User.findOneAndUpdate({_id: userModel._id}, userModel, {returnNewDocument: true});
     },
-    validate: async (user)=> {
-        let userModel = await User.findOne({_id:user._id});
+    validate: async (user) => {
+        let userModel = await User.findOne({_id: user._id});
         userModel.validPassword(user.password);
-        return new Promise(resolve=>{
+        return new Promise(resolve => {
             resolve(userModel.generateJWT());
         })
     }

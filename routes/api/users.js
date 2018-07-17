@@ -20,6 +20,28 @@ router.get('/user', auth.required, async (req, res, next) => {
     }
 });
 
+router.get('/user/validate', auth.optional, async (req, res, next) => {
+
+    try {
+        let users = await UserService.get(req.query);
+        console.log(users);
+        if (users.length === 0) {
+            res.status(200).json({
+                registered: false
+            });
+        } else {
+            res.status(200).json({
+                _id: users.user._id,
+                email: users.user.email,
+                registered: users.user.salt
+            });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err.message);
+    }
+});
+
 router.put('/user', auth.optional, async (req, res) => {
     try {
         let user = await UserService.create(req.body);
@@ -44,19 +66,21 @@ router.put('/user/register', auth.optional, async (req, res) => {
     }
 });
 
-router.post('/user/login', function(req, res, next){
-    if(!req.body.user.email){
+router.post('/user/login', function (req, res, next) {
+    if (!req.body.user.email) {
         return res.status(422).json({errors: {email: "can't be blank"}});
     }
 
-    if(!req.body.user.password){
+    if (!req.body.user.password) {
         return res.status(422).json({errors: {password: "can't be blank"}});
     }
 
-    passport.authenticate('local', {session: false}, function(err, user, info){
-        if(err){ return next(err); }
+    passport.authenticate('local', {session: false}, function (err, user, info) {
+        if (err) {
+            return next(err);
+        }
 
-        if(user){
+        if (user) {
             user.token = user.generateJWT();
             return res.json({user: user.toAuthJSON()});
         } else {

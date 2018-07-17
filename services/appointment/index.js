@@ -14,8 +14,17 @@ module.exports = {
             app.phone = user.phone;
         }
         return new Appointment({
-            location: app.location,
+            firstName: app.firstName,
+            lastName: app.lastName,
+            email: app.email,
+            address1: app.address1,
+            address2: app.address2,
+            city: app.city,
+            state: app.state,
+            zip: app.zip,
             status: app.status,
+            projectType: app.projectType,
+            date: app.date,
             time: app.time,
             phone: app.phone,
             comments: app.comments,
