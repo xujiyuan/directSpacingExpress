@@ -28,7 +28,9 @@ router.delete('/', auth.required, async (req, res) =>{
     if (req.query) {
         try {
             let result = await AppointmentService.delete(req.query);
-            res.status(200).json(result);
+            res.status(200).json({
+                result: result.n === 1
+            });
         } catch (err) {
             console.log(err);
             res.status(500).json(err.message);
