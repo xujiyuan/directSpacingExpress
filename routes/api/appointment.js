@@ -25,9 +25,9 @@ router.put('/', auth.optional, async function (req, res) {
 });
 
 router.delete('/', auth.required, async (req, res) =>{
-    if (req.body.id || req.body._id) {
+    if (req.query) {
         try {
-            let result = await AppointmentService.delete(req.body);
+            let result = await AppointmentService.delete(req.query);
             res.status(200).json(result);
         } catch (err) {
             console.log(err);
