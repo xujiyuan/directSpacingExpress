@@ -23,8 +23,10 @@ module.exports = {
                 zip: payload.zip,
                 state: payload.state,
                 phone: payload.phone,
-                userType: payload.userType,
-                status: payload.status
+                type: payload.type,
+                status: payload.status,
+                bio: payload.bio,
+                image: payload.image
             }).save();
         }
     },
