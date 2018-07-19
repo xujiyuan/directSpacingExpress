@@ -6,13 +6,19 @@ let auth = require('../auth');
 let UserService = require('../../services/user');
 
 router.get('/user', auth.required, async (req, res, next) => {
-
+    const token = req.headers.authorization.split(' ')[1];
+    const loginUser = await UserService.getUserUsingToken(token);
     try {
-        let users = await UserService.get(req.query);
-        if (users.length === 0) {
-            res.status(404).json('not found');
+        if(loginUser.type === 'admin'){
+            const query = req.query;
+            let users = await UserService.get(query);
+            if (users.length === 0) {
+                res.status(404).json('not found');
+            } else {
+                res.status(200).json(users);
+            }
         } else {
-            res.status(200).json(users);
+                res.status(200).json(loginUser);
         }
     } catch (err) {
         console.log(err);

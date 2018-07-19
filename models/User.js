@@ -41,6 +41,7 @@ UserSchema.methods.generateJWT = function () {
     return jwt.sign({
         id: this._id,
         username: this.username,
+        email: this.email,
         exp: parseInt(exp.getTime() + 1000 / 1000),
     }, secret);
 };
@@ -53,6 +54,11 @@ UserSchema.methods.toAuthJSON = function () {
         bio: this.bio,
         image: this.image
     };
+};
+
+UserSchema.methods.getEmailFromToken = function(token) {
+    let result = jwt.verify(token,secret);
+    return result;
 };
 
 UserSchema.methods.toProfileJSONFor = function (user) {

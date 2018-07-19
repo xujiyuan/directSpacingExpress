@@ -59,6 +59,9 @@ module.exports = {
         return new Promise(resolve => {
             resolve(userModel.generateJWT());
         })
+    },
+    getUserUsingToken: async (token) => {
+        let userModel = new User();
+        return User.findOne({email: userModel.getEmailFromToken(token).email});
     }
-
 };
