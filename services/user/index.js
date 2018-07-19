@@ -64,6 +64,17 @@ module.exports = {
     },
     getUserUsingToken: async (token) => {
         let userModel = new User();
-        return User.findOne({email: userModel.getEmailFromToken(token).email});
+        const user = await User.findOne({email: userModel.getEmailFromToken(token).email});
+        if (user) {
+            let appointments = await Appointment.find({userId: user._id});
+            return new Promise((resolve) => {
+                resolve({
+                    user: user,
+                    appointments: appointments
+                })
+            })
+        } else {
+            return user;
+        }
     }
 };
