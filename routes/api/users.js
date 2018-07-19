@@ -9,7 +9,7 @@ router.get('/user', auth.required, async (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1];
     const loginUser = await UserService.getUserUsingToken(token);
     try {
-        if(loginUser.type === 'admin'){
+        if(loginUser.user.type === 'admin'){
             const query = req.query;
             let users = await UserService.get(query);
             if (users.length === 0) {
